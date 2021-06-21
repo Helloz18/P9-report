@@ -75,7 +75,7 @@ public class ReportService {
          * @throws JsonMappingException
          * @throws JsonProcessingException
          */
-        public Report generateReport(int patId) throws JsonMappingException, JsonProcessingException {
+        public Report generateReport(int patId) throws JsonProcessingException {
             // get patientinfos form api patient
             ResponseEntity<String> patient = getPatientInfos(patId);
             ObjectMapper mapper = new ObjectMapper();
@@ -112,7 +112,7 @@ public class ReportService {
          * get a responseEntity String with information of a patient.
          * 
          */
-        public ResponseEntity<String> getPatientInfos(int patId) throws JsonMappingException, JsonProcessingException {
+        public ResponseEntity<String> getPatientInfos(int patId) {
             RestTemplate restTemplate = new RestTemplate();
             String url = "http://localhost:8081/patient/";
             ResponseEntity<String> response = restTemplate.getForEntity(url + patId, String.class);
@@ -141,7 +141,7 @@ public class ReportService {
          * @throws JsonMappingException
          * @throws JsonProcessingException
          */
-        public List<String> getHistoryOfPatient(int patId) throws JsonMappingException, JsonProcessingException {
+        public List<String> getHistoryOfPatient(int patId) throws JsonProcessingException {
             List<String> notesContent = new ArrayList<>();
             RestTemplate restTemplate = new RestTemplate();
             String url = "http://localhost:8082/history/";
