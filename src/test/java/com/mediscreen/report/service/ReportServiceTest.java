@@ -1,4 +1,4 @@
-package com.mediscreen.report;
+package com.mediscreen.report.service;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,16 +13,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.mediscreen.report.service.ReportService;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+
+@RunWith(SpringRunner.class)
 @WebMvcTest(ReportService.class)
-public class TestReportService {
+public class ReportServiceTest {
 
-    ReportService reportService = new ReportService();
+    @Autowired
+    private ReportService reportService;
 
     @Test
     public void givenBirthDateThenCalculateAge() {
