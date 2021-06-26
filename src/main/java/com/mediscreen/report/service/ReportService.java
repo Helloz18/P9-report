@@ -7,7 +7,12 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -50,6 +55,8 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class ReportService {
 
+    Logger logger = LoggerFactory.getLogger(ReportService.class);
+
     /**
      * List of String containing every terms that can be used to determine risk of Diabete.
      */
@@ -76,6 +83,7 @@ public class ReportService {
          * @throws JsonProcessingException
          */
         public Report generateReport(int patId) throws JsonProcessingException {
+            logger.info("generation of report.");
             // get patientinfos form api patient
             ResponseEntity<String> patient = getPatientInfos(patId);
             ObjectMapper mapper = new ObjectMapper();
@@ -113,9 +121,11 @@ public class ReportService {
          * 
          */
         public ResponseEntity<String> getPatientInfos(int patId) {
+            logger.info("get the patient informations from container patient");
             RestTemplate restTemplate = new RestTemplate();
-            String url = "http://localhost:8081/patient/";
+            String url = "http://patient:8081/patient/";
             ResponseEntity<String> response = restTemplate.getForEntity(url + patId, String.class);
+            logger.info("patient's info: "+ response.getBody());
             return response;
         }
 
@@ -126,6 +136,7 @@ public class ReportService {
          * @return long age
          */
         public long calculateAge(String birthdate) {
+            logger.info("calculate age of patient born on "+birthdate+".");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate date1 = LocalDate.parse(birthdate, formatter);
             LocalDate date2 = LocalDate.now();
@@ -142,12 +153,14 @@ public class ReportService {
          * @throws JsonProcessingException
          */
         public List<String> getHistoryOfPatient(int patId) throws JsonProcessingException {
+            logger.info("Call to container history to get notes taken for this patient.");
             List<String> notesContent = new ArrayList<>();
             RestTemplate restTemplate = new RestTemplate();
-            String url = "http://localhost:8082/history/";
+            String url = "http://history:8082/history/";
             ResponseEntity<String> response = restTemplate.getForEntity(url + patId, String.class);
             ObjectMapper mapper = new ObjectMapper();
             if (response.getBody() == null) {
+                logger.info("No notes found for this patient.");
                 notesContent = null;
             } else {
                 JsonNode root = mapper.readTree(response.getBody());
@@ -167,15 +180,16 @@ public class ReportService {
          * @return
          */
         public int calculateNumberOfTerms(List<String> notes) {
-            int numberOfTerms = 0;
+            logger.info("Count the number of terms presents in the patient's notes");
+            Set<String> termsFound = new HashSet<>();
             for (int i = 0; i < terms.size(); i++) {
                 for (String note : notes) {
                     if (note.contains(terms.get(i))) {
-                        terms.remove(terms.get(i));
-                        numberOfTerms++;
+                        termsFound.add(terms.get(i));
                     }
                 }
             }
+            int numberOfTerms = termsFound.size();
             return numberOfTerms;
         }
 
@@ -188,13 +202,14 @@ public class ReportService {
          * @return a String with the risk of the patient
          */
         public String givenNumberOfTermsGiveTheCorrespondingRiskName(int numberOfTerms, long age, String gender) {
+            logger.info("Defining the diabete risk of the patient. Number of terms: "+numberOfTerms+" age: "+age+" gender: "+gender);
             String risk = "";
             if (age >= 30) {
                 risk = ageEqualsOrSuperiorTo30(numberOfTerms);
-            } else if (age > 0 && age < 30) {
-                if (gender.equals('F')) {
+            } else if (age >= 0 && age < 30) {
+                if (gender.equals(String.valueOf('F'))) {
                     risk = riskForGenderFwhoIsUnder30(numberOfTerms);
-                } else if (gender.equals('M')) {
+                } else if (gender.equals(String.valueOf('M'))) {
                     risk = riskForGenderMwhoIsUnder30(numberOfTerms);
                 }
             }
@@ -207,7 +222,7 @@ public class ReportService {
          */
         public String ageEqualsOrSuperiorTo30(int numberOfTerms) {
             String risk = "";
-            if (numberOfTerms > 0 && numberOfTerms < 2) {
+            if (numberOfTerms >= 0 && numberOfTerms < 2) {
                 risk = "None";
             } else if (numberOfTerms >= 2 && numberOfTerms < 6) {
                 risk = "Borderline";
@@ -227,7 +242,7 @@ public class ReportService {
          */
         public String riskForGenderFwhoIsUnder30(int numberOfTerms) {
             String risk = "";
-            if (numberOfTerms > 0 && numberOfTerms < 4) {
+            if (numberOfTerms >=0 && numberOfTerms < 4) {
                 risk = "None";
             } else if (numberOfTerms >= 4 && numberOfTerms < 7) {
                 risk = "In danger";
@@ -245,7 +260,7 @@ public class ReportService {
          */
         public String riskForGenderMwhoIsUnder30(int numberOfTerms) {
             String risk = "";
-            if (numberOfTerms > 0 && numberOfTerms < 3) {
+            if (numberOfTerms >= 0 && numberOfTerms < 3) {
                 risk = "None";
             } else if (numberOfTerms >= 3 && numberOfTerms < 5) {
                 risk = "In danger";
