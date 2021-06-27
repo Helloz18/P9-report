@@ -27,7 +27,11 @@ public class ReportController {
     public ResponseEntity<Report> reportAnalysis(@RequestParam int patId) throws JsonMappingException, JsonProcessingException {
       logger.info("generating report."); 
       Report report = reportService.generateReport(patId);
+      if (report == null) {
+        return ResponseEntity.noContent().build();
+      } else {
       return ResponseEntity.ok().body(report);
+      }
     }
     
 }
