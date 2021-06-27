@@ -180,17 +180,18 @@ public class ReportService {
          * @return
          */
         public int calculateNumberOfTerms(List<String> notes) {
-            logger.info("Count the number of terms presents in the patient's notes");
+            logger.info("Count the number of terms presents in the patient's notes.");
             Set<String> termsFound = new HashSet<>();
             for (int i = 0; i < terms.size(); i++) {
                 for (String note : notes) {
-                    if (note.contains(terms.get(i))) {
+                    if (note.toLowerCase().contains(terms.get(i).toLowerCase())) {
                         termsFound.add(terms.get(i));
                     }
                 }
             }
             int numberOfTerms = termsFound.size();
-            return numberOfTerms;
+            logger.info("number of terms found : "+numberOfTerms);
+             return numberOfTerms;
         }
 
         /**
