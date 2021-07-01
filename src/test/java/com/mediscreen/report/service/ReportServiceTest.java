@@ -41,6 +41,12 @@ public class ReportServiceTest {
     }
 
     @Test
+    public void calculateAge() {
+        String birthdate = LocalDate.now().toString();
+        assertEquals(0, reportService.calculateAge(birthdate));
+    }
+
+    @Test
     public void givenTermsWhenTermIsPresentTermShouldBeFound() {
         List<String> terms = new ArrayList<>(Arrays.asList(
             "Hémoglobine A1C", 
@@ -81,6 +87,24 @@ public class ReportServiceTest {
     }
 
     @Test
+    public void givenNotesThenCalculateTermsShouldReturnRightNumber() {
+        List<String> notes = new ArrayList<>(
+                Arrays.asList(
+                    "une note avec Hémoglobine A1C", 
+                    "Microalbumine", 
+                    "taille", 
+                    "une note avec POIDS",
+                    "FuMeUr", 
+                    "anormal", 
+                    "CHOLEstérol", 
+                    "VERTIGE", 
+                    "rechute", 
+                    "Réaction,  anticorps, taille"));
+        int numberOfTerms = reportService.calculateNumberOfTerms(notes);
+        assertEquals(11, numberOfTerms);
+    }
+
+    @Test
     public void givenNumberOfTermsAndGivenGenderAndAgeThenRightRiskIsSet() {
         int termsZero = 0;
         int termsOne = 1;
@@ -115,6 +139,20 @@ public class ReportServiceTest {
         assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsTen, ageInferiorTo30, genderF));
         assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsEleven, ageInferiorTo30, genderF));
         assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsTwelve, ageInferiorTo30, genderF));
+
+        assertEquals("None", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsZero, ageInferiorTo30, genderM));
+        assertEquals("None", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsOne, ageInferiorTo30, genderM));
+        assertEquals("None", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsTwo, ageInferiorTo30, genderM));
+        assertEquals("In danger", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsThree, ageInferiorTo30, genderM));
+        assertEquals("In danger", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsFour, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsFive, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsSix, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsSeven, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsHeight, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsNine, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsTen, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsEleven, ageInferiorTo30, genderM));
+        assertEquals("Early onset", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsTwelve, ageInferiorTo30, genderM));
 
         assertEquals("Borderline", reportService.givenNumberOfTermsGiveTheCorrespondingRiskName(termsThree, ageSuperiorTo30, genderM));
     }
